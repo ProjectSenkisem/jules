@@ -644,6 +644,29 @@
           .planz-footer-headline { font-size: clamp(42px, 14vw, 80px); }
         }
         </style>
+        <style>
+  /* Webflow overlay fix mobilon */
+  .overlay,
+  .overlay_statue,
+  .home_special {
+    position: absolute !important;
+    pointer-events: none !important;
+  }
+  
+  /* A main elem ne nyúljon túl a saját tartalmán */
+  main.home_int {
+    position: relative !important;
+    overflow: hidden !important;
+  }
+  
+  /* Section legyen a fixed elemek felett */
+  #planz-section {
+    position: relative !important;
+    z-index: 10 !important;
+    background: #000 !important;
+  }
+</style>
+
     </head>
     <body>
         <div class="w-embed w-iframe">
@@ -706,12 +729,7 @@
                         </div>
                     </div>
                     <div data-w-id="48b55e40-343f-5266-0ada-1772ba2732f2" class="menu_header">
-                        <div class="menu-close">close</div>
-                        <div class="menu-open">menu</div>
-                        <div class="hamburger_icon">
-                            <div class="line-one"></div>
-                            <div class="line-two"></div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -884,7 +902,7 @@
                   </div>
                 </div>
                 <div class="planz-card" id="planz-card-2">
-  <img src="./3.jpg" alt="Black & Grey Realism"/>
+  <img src="./3.JPG" alt="Black & Grey Realism"/>
                   <div class="planz-card-overlay"></div>
                   <div class="planz-card-label">
                     <div class="num">002 / Style</div>
@@ -893,7 +911,7 @@
                   </div>
                 </div>
                 <div class="planz-card" id="planz-card-3">
-<img src="./4.jpg" alt="Custom Illustrative"/>
+<img src="./4.JPG" alt="Custom Illustrative"/>
                   <div class="planz-card-overlay"></div>
                   <div class="planz-card-label">
                     <div class="num">003 / Style</div>
