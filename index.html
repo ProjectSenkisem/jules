@@ -7,11 +7,10 @@
         <meta content="Jules Tattoo — Berlin &amp; Hungary. Fine Line, Black &amp; Grey and Custom Tattoos by Jules. Solo tattoo artist working in Berlin, Germany and Hungary. Book your appointment." name="description"/>
         <meta content="Jules Tattoo • Solo Tattoo Artist — Berlin, Germany &amp; Hungary" property="og:title"/>
         <meta content="Jules Tattoo — Berlin &amp; Hungary. Fine Line, Black &amp; Grey and Custom Tattoos by Jules. Solo tattoo artist working in Berlin, Germany and Hungary. Book your appointment." property="og:description"/>
-        <meta content="https://cdn.prod.website-files.com/6685a3fd4bf0e0830701419f/66c37326bf756808a73b2b7a_Home.webp" property="og:image"/>
         <meta content="Jules Tattoo • Solo Tattoo Artist — Berlin, Germany &amp; Hungary" property="twitter:title"/>
         <meta content="Jules Tattoo — Berlin &amp; Hungary. Fine Line, Black &amp; Grey and Custom Tattoos by Jules. Solo tattoo artist working in Berlin, Germany and Hungary. Book your appointment." property="twitter:description"/>
-        <meta content="https://cdn.prod.website-files.com/6685a3fd4bf0e0830701419f/66c37326bf756808a73b2b7a_Home.webp" property="twitter:image"/>
-        <meta property="og:type" content="website"/>
+<meta content="https://YOURDOMAIN.com/og-image.jpg" property="og:image"/>
+<meta content="https://YOURDOMAIN.com/og-image.jpg" property="twitter:image"/>        <meta property="og:type" content="website"/>
         <meta content="summary_large_image" name="twitter:card"/>
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
         <link href="https://cdn.prod.website-files.com/6685a3fd4bf0e0830701419f/css/monolith-st.webflow.shared.81939fdf7.min.css" rel="stylesheet" type="text/css" integrity="sha384-gZOf33Qyx6XMm0l1nNCD1DxeLWncb2U2F3gNScZXnv9uM+4PZCUnHZ0STOFP5F6P" crossorigin="anonymous"/>
@@ -24,8 +23,6 @@
             }(window, document);
             
         </script>
-        <link href="https://cdn.prod.website-files.com/6685a3fd4bf0e0830701419f/66b237f5fb80eb27992a2a71_32x32.png" rel="shortcut icon" type="image/x-icon"/>
-        <link href="https://cdn.prod.website-files.com/6685a3fd4bf0e0830701419f/66b237f9257948e43a0e38c2_256x256.png" rel="apple-touch-icon"/>
         <script type="text/javascript">
             !function(f, b, e, v, n, t, s) {
                 if (f.fbq) return;
@@ -644,22 +641,28 @@
           .planz-footer-headline { font-size: clamp(42px, 14vw, 80px); }
         }
         </style>
-        <style>
-  /* Webflow overlay fix mobilon */
+<style>
+  /* Mobilon: overlay-ek ne nyúljanak a statue fölé */
   .overlay,
   .overlay_statue,
   .home_special {
-    position: absolute !important;
     pointer-events: none !important;
   }
-  
-  /* A main elem ne nyúljon túl a saját tartalmán */
-  main.home_int {
-    position: relative !important;
-    overflow: hidden !important;
+
+  @media (max-width: 820px) {
+    .overlay,
+    .overlay_statue,
+    .home_special {
+      position: absolute !important;
+    }
+
+    main.home_int {
+      position: relative !important;
+      overflow: hidden !important;
+    }
   }
-  
-  /* Section legyen a fixed elemek felett */
+
+  /* Section legyen a fixed elemek felett mindkét nézetben */
   #planz-section {
     position: relative !important;
     z-index: 10 !important;
