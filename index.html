@@ -93,18 +93,19 @@
 ============================================================ */
 .lang-switcher {
   position: relative;
-  display: flex;
+  display: flex !important;
   align-items: center;
+  z-index: 1000;
 }
 .lang-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.25);
+  background: #000 !important;
+  border: 1px solid rgba(0,0,0,0.15);
   border-radius: 30px;
   padding: 6px 14px 6px 10px;
-  color: #fff;
+  color: #fff !important;
   font-family: 'Archivo', sans-serif;
   font-size: 12px;
   font-weight: 600;
@@ -115,8 +116,8 @@
   white-space: nowrap;
 }
 .lang-btn:hover {
-  border-color: rgba(255,255,255,0.7);
-  background: rgba(255,255,255,0.07);
+  background: #222 !important;
+  border-color: #000;
 }
 .lang-btn .lang-flag {
   font-size: 16px;
@@ -871,7 +872,7 @@
   </button>
   <div class="lang-dropdown" id="langDropdown">
     <a href="/index.html" class="lang-option active">
-      <span class="lang-flag">EN</span> English
+      <span class="lang-flag">🇬🇧</span> English
     </a>
     <a href="/de.html" class="lang-option">
       <span class="lang-flag">🇩🇪</span> Deutsch
@@ -1385,145 +1386,116 @@
              - Fehér (#fff) szín a #planz-section UTÁN/BENNE
              - Telefonon is működik (touchmove)
         ============================================================ -->
-        <script>
-        (function() {
-          const canvas = document.getElementById('ink-canvas');
-          const dot = document.getElementById('ink-dot');
-          if (!canvas) return;
+<script>
+(function() {
+  const canvas = document.getElementById('ink-canvas');
+  const dot = document.getElementById('ink-dot');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
 
-          const ctx = canvas.getContext('2d');
+  let mouseMoved = false;
+  const planzSection = document.getElementById('planz-section');
 
-          // Méretezés
-          function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-          }
-          resizeCanvas();
-          window.addEventListener('resize', resizeCanvas);
+  const pointer = {
+    x: 0.5 * window.innerWidth,
+    y: 0.5 * window.innerHeight,
+  };
 
-          // Pontok tömb a vonalhoz
-          const points = [];
-          const MAX_POINTS = 80;
-          const FADE_SPEED = 0.018; // milyen gyorsan halványodik
-          const LINE_WIDTH_MAX = 18;
-          const LINE_WIDTH_MIN = 2;
+  const params = {
+    pointsNumber: 40,
+    widthFactor: 0.25,
+    spring: 0.4,
+    friction: 0.5,
+  };
 
-          let mouseX = -999, mouseY = -999;
-          let isMoving = false;
-          let moveTimer = null;
+  const trail = new Array(params.pointsNumber);
+  for (let i = 0; i < params.pointsNumber; i++) {
+    trail[i] = { x: pointer.x, y: pointer.y, dx: 0, dy: 0 };
+  }
 
-          // Határ: #planz-section teteje
-          const planzSection = document.getElementById('planz-section');
+  function setupCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  setupCanvas();
+  window.addEventListener('resize', setupCanvas);
 
-          function getInkColor() {
-            if (!planzSection) return '#000000';
-            const rect = planzSection.getBoundingClientRect();
-            // Ha a kurzor a section teteje FELETT van → fekete, egyébként → fehér
-            if (mouseY < rect.top) {
-              return '#000000';
-            }
-            return '#ffffff';
-          }
+  function getInkColor() {
+    if (!planzSection) return '#000000';
+    const rect = planzSection.getBoundingClientRect();
+    return pointer.y < rect.top ? '#000000' : '#ffffff';
+  }
 
-          function addPoint(x, y) {
-            points.push({ x, y, age: 0, color: getInkColor() });
-            if (points.length > MAX_POINTS) points.shift();
-          }
+  function updateMousePosition(eX, eY) {
+    pointer.x = eX;
+    pointer.y = eY;
+  }
 
-          function drawInk() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+  document.addEventListener('mousemove', (e) => {
+    mouseMoved = true;
+    updateMousePosition(e.clientX, e.clientY);
+    dot.style.left = e.clientX + 'px';
+    dot.style.top = e.clientY + 'px';
+    dot.style.background = getInkColor();
+  });
 
-            if (points.length < 2) {
-              requestAnimationFrame(drawInk);
-              return;
-            }
+  document.addEventListener('touchmove', (e) => {
+    mouseMoved = true;
+    updateMousePosition(e.targetTouches[0].clientX, e.targetTouches[0].clientY);
+  }, { passive: true });
 
-            // Fade + draw
-            for (let i = 1; i < points.length; i++) {
-              const p0 = points[i - 1];
-              const p1 = points[i];
+  document.addEventListener('touchstart', (e) => {
+    updateMousePosition(e.targetTouches[0].clientX, e.targetTouches[0].clientY);
+    dot.style.left = pointer.x + 'px';
+    dot.style.top = pointer.y + 'px';
+  }, { passive: true });
 
-              const progress = i / points.length; // 0..1
-              const alpha = progress * (1 - p1.age);
-              if (alpha <= 0) continue;
+  document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; });
+  document.addEventListener('mouseenter', () => { dot.style.opacity = '1'; });
 
-              // Vonalvastagság: eleje vastagabb, vége vékony
-              const lw = LINE_WIDTH_MIN + (LINE_WIDTH_MAX - LINE_WIDTH_MIN) * progress * (1 - p1.age * 1.5);
+  function update(t) {
+    // intro animáció ha még nem mozgott az egér
+    if (!mouseMoved) {
+      pointer.x = (0.5 + 0.3 * Math.cos(0.002 * t) * Math.sin(0.005 * t)) * window.innerWidth;
+      pointer.y = (0.5 + 0.2 * Math.cos(0.005 * t) + 0.1 * Math.cos(0.01 * t)) * window.innerHeight;
+    }
 
-              ctx.beginPath();
-              ctx.moveTo(p0.x, p0.y);
-              ctx.lineTo(p1.x, p1.y);
-              ctx.lineWidth = Math.max(0.5, lw);
-              ctx.lineCap = 'round';
-              ctx.lineJoin = 'round';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-              // Ecset-szerű: kissé irregulár opacity
-              const jitter = 0.85 + Math.random() * 0.15;
-              ctx.globalAlpha = Math.min(1, alpha * jitter);
-              ctx.strokeStyle = p1.color;
-              ctx.stroke();
-            }
+    // spring physics update
+    trail.forEach((p, pIdx) => {
+      const prev = pIdx === 0 ? pointer : trail[pIdx - 1];
+      const spring = pIdx === 0 ? 0.4 * params.spring : params.spring;
+      p.dx += (prev.x - p.x) * spring;
+      p.dy += (prev.y - p.y) * spring;
+      p.dx *= params.friction;
+      p.dy *= params.friction;
+      p.x += p.dx;
+      p.y += p.dy;
+    });
 
-            ctx.globalAlpha = 1;
+    const color = getInkColor();
+    ctx.strokeStyle = color;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
-            // Öregítés
-            for (let i = 0; i < points.length; i++) {
-              points[i].age += FADE_SPEED;
-            }
-            // Teljesen öreg pontok törlése
-            while (points.length > 0 && points[0].age >= 1) {
-              points.shift();
-            }
+    // pontosan a hype-tattoo módszer: szegmensenként külön stroke, csökkenő vastagság
+    for (let i = 1; i < trail.length - 1; i++) {
+      const xc = 0.5 * (trail[i].x + trail[i + 1].x);
+      const yc = 0.5 * (trail[i].y + trail[i + 1].y);
+      ctx.beginPath();
+      ctx.moveTo(trail[i - 1].x, trail[i - 1].y);
+      ctx.quadraticCurveTo(trail[i].x, trail[i].y, xc, yc);
+      ctx.lineWidth = params.widthFactor * (params.pointsNumber - i);
+      ctx.stroke();
+    }
 
-            requestAnimationFrame(drawInk);
-          }
+    window.requestAnimationFrame(update);
+  }
 
-          // Kurzor dot frissítése
-          function updateDot(x, y) {
-            const color = getInkColor();
-            dot.style.left = x + 'px';
-            dot.style.top = y + 'px';
-            dot.style.background = color;
-          }
-
-          // Mouse events
-          document.addEventListener('mousemove', function(e) {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            addPoint(mouseX, mouseY);
-            updateDot(mouseX, mouseY);
-            isMoving = true;
-            clearTimeout(moveTimer);
-            moveTimer = setTimeout(() => { isMoving = false; }, 100);
-          });
-
-          // Touch events (mobil)
-          document.addEventListener('touchmove', function(e) {
-            const t = e.touches[0];
-            mouseX = t.clientX;
-            mouseY = t.clientY;
-            addPoint(mouseX, mouseY);
-            updateDot(mouseX, mouseY);
-          }, { passive: true });
-
-          document.addEventListener('touchstart', function(e) {
-            const t = e.touches[0];
-            mouseX = t.clientX;
-            mouseY = t.clientY;
-            updateDot(mouseX, mouseY);
-          }, { passive: true });
-
-          // Dot elrejtése ha nem mozdul az egér
-          document.addEventListener('mouseleave', function() {
-            dot.style.opacity = '0';
-          });
-          document.addEventListener('mouseenter', function() {
-            dot.style.opacity = '1';
-          });
-
-          drawInk();
-        })();
-        </script>
+  update(0);
+})();
+</script>
 
         <script>
 (function() {
